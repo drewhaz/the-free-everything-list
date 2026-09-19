@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Free Everything List</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c27;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --accent: #7c6dfa;
+    --accent2: #fa6d9a;
+    --accent3: #6dfabc;
+    --accent4: #facc6d;
+    --accent5: #6db4fa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 40% at 20% 10%, rgba(124,109,250,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(250,109,154,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    padding: 60px 0 40px;
+    text-align: center;
+    position: relative;
+  }
+
+  .eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 8vw, 88px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.1s forwards;
+  }
+
+  h1 span { color: var(--accent); }
+  h1 em { font-style: italic; color: var(--accent2); }
+
+  .subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.2s forwards;
+  }
+
+  .stats {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.3s forwards;
+  }
+
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent3);
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Search */
+  .search-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.4s forwards;
+  }
+
+  .search-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px 12px 44px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box input::placeholder { color: var(--muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  .filter-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* Results bar */
+  .results-bar {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 24px 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Main content */
+  main { padding: 40px 0 80px; }
+
+  .section {
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+
+  .section.visible { opacity: 1; transform: none; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .section-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  /* Cards grid */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 12px;
+  }
+
+  .card:hover {
+    border-color: var(--card-accent, var(--accent));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  .card:hover::before { opacity: 0.04; background: var(--card-accent, var(--accent)); }
+
+  .card-favicon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .card-favicon img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .card-info { flex: 1; min-width: 0; }
+
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-url {
+    font-size: 11px;
+    color: var(--card-accent, var(--accent));
+    margin-top: 4px;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .badge-new {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--accent2);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* No results */
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    display: none;
+  }
+
+  .no-results h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  /* Back to top */
+  .back-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 200;
+  }
+
+  .back-top.show { opacity: 1; transform: none; }
+  .back-top:hover { background: #6355e0; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* Section color themes */
+  .theme-purple { --card-accent: var(--accent); }
+  .theme-pink { --card-accent: var(--accent2); }
+  .theme-green { --card-accent: var(--accent3); }
+  .theme-yellow { --card-accent: var(--accent4); }
+  .theme-blue { --card-accent: var(--accent5); }
+
+  @media (max-width: 600px) {
+    .cards { grid-template-columns: 1fr; }
+    h1 { font-size: 42px; }
+    .filter-chips { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="eyebrow">The Ultimate Resource</div>
+    <h1>The <span>Free</span><br><em>Everything</em> List</h1>
+    <p class="subtitle">Hundreds of free tools, apps, and resources — no paywalls, no catch.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="totalCount">0</div><div class="stat-label">Total Resources</div></div>
+      <div class="stat"><div class="stat-num" id="catCount">0</div><div class="stat-label">Categories</div></div>
+      <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Free</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <div class="search-inner">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search tools, categories, descriptions..." autocomplete="off">
+    </div>
+    <div class="filter-chips" id="filterChips"></div>
+  </div>
+</div>
+
+<div class="results-bar container" id="resultsBar"></div>
+
+<main>
+  <div class="container">
+    <div id="sectionsWrap"></div>
+    <div class="no-results" id="noResults">
+      <h3>No results found</h3>
+      <p>Try a different search term or clear the filter.</p>
+    </div>
+  </div>
+</main>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+const DATA = {
+  "Finance": {
+    icon: "💰", theme: "theme-green", items: [
+      { name: "Chase College Checking", desc: "Free teen checking account — under 18", url: "chase.com", new: false },
+      { name: "Capital One MONEY", desc: "Free teen debit account", url: "capitalone.com", new: false },
+      { name: "Greenlight", desc: "Free teen banking and money management", url: "greenlightcard.com", new: false },
+      { name: "Step", desc: "Free teen banking, builds credit automatically", url: "step.com", new: false },
+      { name: "Fidelity Youth", desc: "Free investing account for under 18", url: "fidelity.com/youth", new: false },
+      { name: "Credit Karma", desc: "Free credit monitoring and score tracking", url: "creditkarma.com", new: false },
+      { name: "PocketGuard", desc: "Free spending tracker", url: "pocketguard.com", new: false },
+      { name: "Empower", desc: "Free net worth and investment tracker (formerly Personal Capital)", url: "empower.com", new: true },
+      { name: "Rocket Money", desc: "Free subscription and bill tracker", url: "rocketmoney.com", new: true },
+      { name: "Goodbudget", desc: "Free envelope budgeting app", url: "goodbudget.com", new: true },
+      { name: "Wave", desc: "Free accounting software for freelancers and small business", url: "waveapps.com", new: false },
+      { name: "Invoice Ninja", desc: "Free professional invoicing", url: "invoiceninja.com", new: false },
+      { name: "Khan Academy Personal Finance", desc: "Free financial education for all ages", url: "khanacademy.org", new: false },
+      { name: "Investopedia", desc: "Free financial reference and education", url: "investopedia.com", new: false },
+      { name: "Next Gen Personal Finance", desc: "Free high school finance curriculum", url: "ngpf.org", new: false },
+      { name: "CFI Free Courses", desc: "Free corporate finance basics", url: "corporatefinanceinstitute.com", new: false },
+      { name: "Splitwise", desc: "Free bill splitting and shared expense tracker", url: "splitwise.com", new: true },
+      { name: "Stripe", desc: "Free to set up — accept payments online, pay per transaction only", url: "stripe.com", new: true },
+      { name: "Gumroad", desc: "Free platform to sell digital products", url: "gumroad.com", new: true },
+    ]
+  },
+  "Certifications": {
+    icon: "🎓", theme: "theme-purple", items: [
+      { name: "Harvard CS50x", desc: "Free intro to computer science from Harvard", url: "cs50.harvard.edu", new: false },
+      { name: "Google Digital Marketing", desc: "Free Google marketing certification", url: "grow.google/certificates", new: false },
+      { name: "Google Analytics", desc: "Free analytics certification", url: "skillshop.google.com", new: false },
+      { name: "HubSpot Marketing", desc: "Free marketing certification", url: "academy.hubspot.com", new: false },
+      { name: "HubSpot Sales", desc: "Free sales certification", url: "academy.hubspot.com", new: false },
+      { name: "HubSpot Email Marketing", desc: "Free email marketing certification", url: "academy.hubspot.com", new: false },
+      { name: "HubSpot Social Media", desc: "Free social media certification", url: "academy.hubspot.com", new: false },
+      { name: "freeCodeCamp", desc: "Free coding certifications in web dev, data science, and more", url: "freecodecamp.org", new: false },
+      { name: "Alison.com", desc: "Free accredited courses and certificates", url: "alison.com", new: false },
+      { name: "Kaggle", desc: "Free data science certifications backed by Google", url: "kaggle.com", new: false },
+      { name: "Semrush Academy", desc: "Free SEO and digital marketing certifications", url: "semrush.com/academy", new: false },
+      { name: "GitHub Foundations", desc: "Free developer certification", url: "education.github.com", new: false },
+      { name: "MongoDB University", desc: "Free database certification", url: "university.mongodb.com", new: false },
+      { name: "W3Schools", desc: "Free web development certifications", url: "w3schools.com", new: false },
+      { name: "Hootsuite Social Marketing", desc: "Free social media certification", url: "education.hootsuite.com", new: false },
+      { name: "Saylor Academy", desc: "Free college-level certifications", url: "saylor.org", new: false },
+      { name: "OpenLearn", desc: "Free UK university courses and certificates", url: "open.edu/openlearn", new: false },
+      { name: "Google IT Support", desc: "Free IT support certification on Coursera", url: "coursera.org", new: false },
+      { name: "Microsoft Learn", desc: "Free Microsoft technology certifications", url: "learn.microsoft.com", new: false },
+      { name: "Cisco Networking Basics", desc: "Free networking certification", url: "netacad.com", new: false },
+      { name: "IBM Data Science", desc: "Free to audit on Coursera", url: "coursera.org", new: false },
+      { name: "Yale Open Courses", desc: "Free Yale lectures and course materials", url: "oyc.yale.edu", new: true },
+    ]
+  },
+  "Rewards & Cashback": {
+    icon: "💸", theme: "theme-yellow", items: [
+      { name: "Microsoft Rewards", desc: "Earn points just by using Bing search", url: "rewards.microsoft.com", new: false },
+      { name: "Honey", desc: "Auto-applies coupons at checkout in your browser", url: "joinhoney.com", new: false },
+      { name: "Rakuten", desc: "Cashback on online purchases at major retailers", url: "rakuten.com", new: false },
+      { name: "Fetch Rewards", desc: "Scan receipts to earn gift cards", url: "fetchrewards.com", new: false },
+      { name: "Drop", desc: "Links to your card for automatic cashback", url: "drop.com", new: false },
+      { name: "Dosh", desc: "Automatic cashback at certain stores, no scanning needed", url: "dosh.cash", new: false },
+      { name: "Shopkick", desc: "Earn points for walking into stores and shopping", url: "shopkick.com", new: false },
+      { name: "Google Opinion Rewards", desc: "Short surveys for Google Play credits", url: "play.google.com", new: false },
+      { name: "Mistplay", desc: "Play games and earn gift cards", url: "mistplay.com", new: false },
+      { name: "Ibotta", desc: "Cashback on groceries and everyday purchases", url: "ibotta.com", new: false },
+      { name: "Receipt Hog", desc: "Scan receipts to earn cash", url: "receipthog.com", new: false },
+      { name: "MyPoints", desc: "Watch videos and take surveys for gift cards", url: "mypoints.com", new: false },
+      { name: "Swagbucks", desc: "Earn points for surveys, shopping, and videos", url: "swagbucks.com", new: true },
+      { name: "Freecash", desc: "Cashback for completing tasks and gaming", url: "freecash.com", new: true },
+      { name: "RetailMeNot", desc: "Free coupon code aggregator for online and in-store", url: "retailmenot.com", new: true },
+    ]
+  },
+  "Software & Productivity": {
+    icon: "⚡", theme: "theme-blue", items: [
+      { name: "Microsoft 365", desc: "Free Word, Excel, PowerPoint — online versions", url: "microsoft.com", new: false },
+      { name: "Notion", desc: "Free note-taking, wikis, and project management", url: "notion.so", new: false },
+      { name: "Canva", desc: "Free graphic design tool with thousands of templates", url: "canva.com", new: false },
+      { name: "Figma", desc: "Free professional UI design and prototyping tool", url: "figma.com", new: false },
+      { name: "Autodesk Suite", desc: "Free CAD and 3D software for students", url: "autodesk.com/education", new: false },
+      { name: "Bitwarden", desc: "Free open-source password manager", url: "bitwarden.com", new: false },
+      { name: "Grammarly", desc: "Free AI writing assistant and grammar checker", url: "grammarly.com", new: false },
+      { name: "DaVinci Resolve", desc: "Free professional-grade video editor", url: "blackmagicdesign.com", new: false },
+      { name: "Blender", desc: "Free 3D modeling, animation, and rendering software", url: "blender.org", new: false },
+      { name: "GIMP", desc: "Free open-source photo editing software", url: "gimp.org", new: false },
+      { name: "Audacity", desc: "Free audio recording and editing", url: "audacityteam.org", new: false },
+      { name: "OBS Studio", desc: "Free screen recording and live streaming", url: "obsproject.com", new: false },
+      { name: "Photopea", desc: "Free Photoshop alternative in the browser", url: "photopea.com", new: false },
+      { name: "Zapier", desc: "Free workflow automation between apps", url: "zapier.com", new: false },
+      { name: "IFTTT", desc: "Free app automation — if this then that", url: "ifttt.com", new: false },
+      { name: "Trello", desc: "Free visual project management with boards and cards", url: "trello.com", new: false },
+      { name: "Airtable", desc: "Free database and project tracking tool", url: "airtable.com", new: false },
+      { name: "Clockify", desc: "Free time tracker for work and projects", url: "clockify.me", new: false },
+      { name: "Todoist", desc: "Free task manager with priorities and due dates", url: "todoist.com", new: false },
+      { name: "Any.do", desc: "Free task manager and daily planner", url: "any.do", new: false },
+      { name: "Calendly", desc: "Free scheduling tool for meetings", url: "calendly.com", new: false },
+      { name: "Loom", desc: "Free screen recording and async video messaging", url: "loom.com", new: false },
+      { name: "Obsidian", desc: "Free local-first note-taking app with linking", url: "obsidian.md", new: false },
+      { name: "Standard Notes", desc: "Free encrypted note-taking app", url: "standardnotes.com", new: false },
+      { name: "ClickUp", desc: "Free all-in-one project management platform", url: "clickup.com", new: true },
+      { name: "Miro", desc: "Free collaborative online whiteboard", url: "miro.com", new: true },
+      { name: "Toggl Track", desc: "Free time tracking with reports", url: "toggl.com", new: true },
+      { name: "Evernote", desc: "Free note-taking synced across all your devices", url: "evernote.com", new: true },
+      { name: "Slack", desc: "Free team messaging and community platform", url: "slack.com", new: true },
+      { name: "Zoom", desc: "Free video calls up to 40 minutes", url: "zoom.us", new: true },
+      { name: "Pomofocus", desc: "Free browser-based Pomodoro timer for focus", url: "pomofocus.io", new: true },
+      { name: "Cold Turkey", desc: "Free website and app blocker for deep focus", url: "getcoldturkey.com", new: true },
+      { name: "Excalidraw", desc: "Free virtual whiteboard for sketching and diagrams", url: "excalidraw.com", new: true },
+    ]
+  },
+  "AI Tools": {
+    icon: "🤖", theme: "theme-purple", items: [
+      { name: "Claude", desc: "Free AI assistant — great for writing, analysis, and coding", url: "claude.ai", new: false },
+      { name: "ChatGPT", desc: "Free AI chatbot by OpenAI", url: "chat.openai.com", new: false },
+      { name: "Microsoft Copilot", desc: "Free AI assistant with GPT-4 built into Bing", url: "copilot.microsoft.com", new: false },
+      { name: "Google Gemini", desc: "Free AI assistant by Google", url: "gemini.google.com", new: false },
+      { name: "Perplexity", desc: "Free AI search engine that cites its sources", url: "perplexity.ai", new: false },
+      { name: "Grok", desc: "Free AI by xAI with real-time web access", url: "grok.com", new: true },
+      { name: "Meta AI", desc: "Free AI assistant built into Meta apps", url: "meta.ai", new: true },
+      { name: "NotebookLM", desc: "Free AI research tool — upload notes and chat with them", url: "notebooklm.google.com", new: true },
+      { name: "Gamma", desc: "Free AI presentation and slide maker", url: "gamma.app", new: false },
+      { name: "Ideogram", desc: "Free AI image generation with great text", url: "ideogram.ai", new: false },
+      { name: "Leonardo.ai", desc: "Free AI image generation", url: "leonardo.ai", new: false },
+      { name: "Suno", desc: "Free AI music generation from a text prompt", url: "suno.com", new: true },
+      { name: "ChatPDF", desc: "Free tool to chat with and summarize any PDF", url: "chatpdf.com", new: true },
+      { name: "Otter.ai", desc: "Free AI transcription for meetings and audio", url: "otter.ai", new: true },
+      { name: "Tactiq", desc: "Free AI meeting notes from Zoom and Google Meet", url: "tactiq.io", new: true },
+      { name: "QuillBot", desc: "Free AI paraphrasing, summarizing, and grammar tool", url: "quillbot.com", new: true },
+    ]
+  },
+  "Entertainment": {
+    icon: "🎬", theme: "theme-pink", items: [
+      { name: "Tubi", desc: "Free movies and TV shows — no subscription needed", url: "tubi.tv", new: false },
+      { name: "Pluto TV", desc: "Free streaming TV — no signup required", url: "pluto.tv", new: false },
+      { name: "Plex", desc: "Free movies, shows, and live TV", url: "plex.tv", new: false },
+      { name: "Popcornflix", desc: "Free movies streaming", url: "popcornflix.com", new: false },
+      { name: "Spotify", desc: "Free music streaming with ads", url: "spotify.com", new: false },
+      { name: "Epic Games", desc: "Free game every week — keep it forever", url: "epicgames.com", new: false },
+      { name: "Steam Free to Play", desc: "Huge library of free-to-play games", url: "store.steampowered.com", new: false },
+      { name: "GOG", desc: "Occasional free game giveaways", url: "gog.com", new: false },
+      { name: "Peacock", desc: "Free streaming tier with movies and shows", url: "peacocktv.com", new: false },
+      { name: "Crackle", desc: "Free movie streaming", url: "crackle.com", new: false },
+      { name: "Pandora", desc: "Free music streaming radio", url: "pandora.com", new: false },
+      { name: "iHeartRadio", desc: "Completely free radio and podcast platform", url: "iheart.com", new: false },
+    ]
+  },
+  "Learning": {
+    icon: "📚", theme: "theme-yellow", items: [
+      { name: "Khan Academy", desc: "Free everything — math, science, history, and more", url: "khanacademy.org", new: false },
+      { name: "MIT OpenCourseWare", desc: "Free MIT course materials and lectures", url: "ocw.mit.edu", new: false },
+      { name: "Y Combinator Startup School", desc: "Free startup curriculum from YC", url: "startupschool.org", new: false },
+      { name: "Coursera Audit", desc: "Free access to course content — no certificate", url: "coursera.org", new: false },
+      { name: "edX Audit", desc: "Free course content from top universities", url: "edx.org", new: false },
+      { name: "Paul Graham Essays", desc: "Free legendary essays on startups and life", url: "paulgraham.com", new: false },
+      { name: "CrashCourse", desc: "Free YouTube courses on nearly every subject", url: "youtube.com/crashcourse", new: false },
+      { name: "TED Talks", desc: "Free lectures from the world's best thinkers", url: "ted.com", new: false },
+      { name: "Brilliant.org", desc: "Free math and science problem-solving platform", url: "brilliant.org", new: false },
+      { name: "Codecademy", desc: "Free coding basics in Python, JS, and more", url: "codecademy.com", new: false },
+      { name: "Duolingo", desc: "Free language learning app — gamified lessons", url: "duolingo.com", new: false },
+      { name: "Stanford Online", desc: "Free Stanford course content", url: "online.stanford.edu", new: false },
+      { name: "Harvard Online", desc: "Free Harvard courses", url: "online.harvard.edu", new: false },
+      { name: "Quizlet", desc: "Free flashcards, study games, and practice tests", url: "quizlet.com", new: true },
+      { name: "CK-12", desc: "Free interactive STEM textbooks and lessons", url: "ck12.org", new: true },
+      { name: "Yale Open Courses", desc: "Free Yale lectures and course materials", url: "oyc.yale.edu", new: true },
+      { name: "Anki", desc: "Free spaced repetition flashcard app — scientifically proven", url: "apps.ankiweb.net", new: true },
+    ]
+  },
+  "Books & Reading": {
+    icon: "📖", theme: "theme-blue", items: [
+      { name: "Libby", desc: "Free ebooks and audiobooks through your library card", url: "libbyapp.com", new: false },
+      { name: "Open Library", desc: "Free digital book borrowing — millions of titles", url: "openlibrary.org", new: false },
+      { name: "Archive.org", desc: "Free books, movies, music, and software archive", url: "archive.org", new: false },
+      { name: "Project Gutenberg", desc: "Free classic books — 70,000+ titles", url: "gutenberg.org", new: false },
+      { name: "Kanopy", desc: "Free movies and documentaries through your library", url: "kanopy.com", new: false },
+      { name: "Hoopla", desc: "Free ebooks, audiobooks, and comics through your library", url: "hoopladigital.com", new: false },
+      { name: "Scribd", desc: "Free trial for books and audiobooks", url: "scribd.com", new: false },
+      { name: "Goodreads", desc: "Free book tracking, ratings, and recommendations", url: "goodreads.com", new: true },
+    ]
+  },
+  "Design & Creative": {
+    icon: "🎨", theme: "theme-pink", items: [
+      { name: "Adobe Express", desc: "Free graphic design and video editor from Adobe", url: "adobe.com/express", new: false },
+      { name: "Remove.bg", desc: "Free background remover — one click", url: "remove.bg", new: false },
+      { name: "Coolors", desc: "Free color palette generator for designers", url: "coolors.co", new: false },
+      { name: "Unsplash", desc: "Free professional stock photos — no attribution needed", url: "unsplash.com", new: false },
+      { name: "Pexels", desc: "Free stock photos and videos", url: "pexels.com", new: false },
+      { name: "Flaticon", desc: "Free icon library — millions of icons", url: "flaticon.com", new: false },
+      { name: "Storyset", desc: "Free customizable illustrations for projects", url: "storyset.com", new: false },
+      { name: "Undraw", desc: "Free open-source illustrations in any color", url: "undraw.co", new: false },
+      { name: "DaFont", desc: "Free fonts for personal use", url: "dafont.com", new: false },
+      { name: "Font Awesome", desc: "Free icon fonts for web projects", url: "fontawesome.com", new: false },
+      { name: "Freesound.org", desc: "Free creative commons sound effects", url: "freesound.org", new: false },
+      { name: "Mixkit", desc: "Free music, sound effects, and video templates", url: "mixkit.co", new: false },
+      { name: "Pixlr", desc: "Free photo editor that runs in the browser", url: "pixlr.com", new: false },
+      { name: "Kapwing", desc: "Free online video editor for creators", url: "kapwing.com", new: false },
+      { name: "Vectr", desc: "Free vector design tool online", url: "vectr.com", new: false },
+      { name: "Visme", desc: "Free infographic and presentation maker", url: "visme.co", new: false },
+      { name: "Piktochart", desc: "Free infographic and data visualization maker", url: "piktochart.com", new: false },
+      { name: "CapCut", desc: "Free video editor with AI auto-captions and effects", url: "capcut.com", new: true },
+      { name: "InVideo", desc: "Free AI video creation with templates", url: "invideo.ai", new: true },
+      { name: "Descript", desc: "Free video and audio editor with transcription", url: "descript.com", new: true },
+      { name: "Looka", desc: "Free AI logo generator", url: "looka.com", new: true },
+    ]
+  },
+  "Dev & Coding": {
+    icon: "💻", theme: "theme-green", items: [
+      { name: "GitHub", desc: "Free code hosting and version control", url: "github.com", new: false },
+      { name: "Replit", desc: "Free online coding environment — any language", url: "replit.com", new: false },
+      { name: "Vercel", desc: "Free app and website hosting with CI/CD", url: "vercel.com", new: false },
+      { name: "Netlify", desc: "Free website hosting with form handling", url: "netlify.com", new: false },
+      { name: "Supabase", desc: "Free open-source Firebase alternative with database", url: "supabase.com", new: false },
+      { name: "CodePen", desc: "Free front-end playground and community", url: "codepen.io", new: false },
+      { name: "JSFiddle", desc: "Free browser-based code testing", url: "jsfiddle.net", new: false },
+      { name: "Glitch", desc: "Free app hosting with live collaborative editing", url: "glitch.com", new: false },
+      { name: "StackBlitz", desc: "Free online IDE for modern JS frameworks", url: "stackblitz.com", new: false },
+      { name: "Railway", desc: "Free tier app hosting — easy deployments", url: "railway.app", new: false },
+      { name: "MongoDB Atlas", desc: "Free cloud database with 512MB storage", url: "mongodb.com/atlas", new: false },
+      { name: "VS Code", desc: "Free and best-in-class code editor by Microsoft", url: "code.visualstudio.com", new: true },
+      { name: "Postman", desc: "Free API testing and documentation tool", url: "postman.com", new: true },
+      { name: "Cursor", desc: "Free AI-powered code editor", url: "cursor.com", new: true },
+      { name: "LeetCode", desc: "Free coding interview prep — hundreds of problems", url: "leetcode.com", new: true },
+      { name: "HackerRank", desc: "Free coding challenges and skill assessments", url: "hackerrank.com", new: true },
+    ]
+  },
+  "Cloud Storage": {
+    icon: "☁️", theme: "theme-blue", items: [
+      { name: "Google Drive", desc: "15GB free cloud storage", url: "drive.google.com", new: false },
+      { name: "Mega", desc: "20GB free — one of the most generous free tiers", url: "mega.nz", new: false },
+      { name: "OneDrive", desc: "5GB free from Microsoft", url: "onedrive.com", new: false },
+      { name: "Internxt", desc: "10GB free encrypted cloud storage", url: "internxt.com", new: false },
+      { name: "Dropbox", desc: "2GB free — easy sharing and syncing", url: "dropbox.com", new: false },
+    ]
+  },
+  "Health & Wellness": {
+    icon: "🧘", theme: "theme-green", items: [
+      { name: "Nike Training Club", desc: "Free workout plans from Nike trainers", url: "nike.com/ntc-app", new: false },
+      { name: "Nike Run Club", desc: "Free guided running plans and GPS tracking", url: "nike.com/nrc-app", new: false },
+      { name: "MyFitnessPal", desc: "Free calorie and nutrition tracker", url: "myfitnesspal.com", new: false },
+      { name: "Insight Timer", desc: "Free meditation app with thousands of sessions", url: "insighttimer.com", new: false },
+      { name: "Cronometer", desc: "Free detailed nutrition tracker", url: "cronometer.com", new: false },
+      { name: "Daylio", desc: "Free mood tracker and micro-journal", url: "daylio.net", new: false },
+      { name: "Woebot", desc: "Free mental health chatbot using CBT techniques", url: "woebot.io", new: false },
+      { name: "Finch", desc: "Free self-care and mood app — grow a virtual bird", url: "finchcare.com", new: true },
+      { name: "Headspace", desc: "Free basic meditation and mindfulness sessions", url: "headspace.com", new: true },
+      { name: "myNoise", desc: "Free customizable ambient soundscapes for focus and sleep", url: "mynoise.net", new: true },
+      { name: "Noisli", desc: "Free background noise for focus and relaxation", url: "noisli.com", new: true },
+    ]
+  },
+  "Food & Rewards": {
+    icon: "🍔", theme: "theme-yellow", items: [
+      { name: "McDonald's App", desc: "Free item on first order after download", url: "mcdonalds.com", new: false },
+      { name: "Chick-fil-A App", desc: "Free nuggets on signup", url: "chick-fil-a.com", new: false },
+      { name: "Starbucks Rewards", desc: "Free drinks earned over time — stars add up fast", url: "starbucks.com", new: false },
+      { name: "Dunkin' Rewards", desc: "Free coffee and drinks over time", url: "dunkindonuts.com", new: false },
+      { name: "Subway Rewards", desc: "Free sub earned over time", url: "subway.com", new: false },
+      { name: "Too Good To Go", desc: "Discounted leftover food from local restaurants", url: "toogoodtogo.com", new: false },
+      { name: "Olio", desc: "Free food and items from neighbors", url: "olioex.com", new: false },
+    ]
+  },
+  "Marketing & Business": {
+    icon: "📣", theme: "theme-pink", items: [
+      { name: "Mailchimp", desc: "Free email marketing for up to 500 contacts", url: "mailchimp.com", new: true },
+      { name: "Beehiiv", desc: "Free newsletter and email list builder for creators", url: "beehiiv.com", new: true },
+      { name: "Later", desc: "Free social media post scheduler", url: "later.com", new: true },
+      { name: "Buffer", desc: "Free social media scheduling and analytics", url: "buffer.com", new: true },
+      { name: "HubSpot CRM", desc: "Free CRM for contacts, deals, and pipeline management", url: "hubspot.com", new: true },
+      { name: "Systeme.io", desc: "Free sales funnels, email automation, and landing pages", url: "systeme.io", new: true },
+      { name: "Google Search Console", desc: "Free tool to monitor your website in Google Search", url: "search.google.com/search-console", new: true },
+      { name: "Google Analytics", desc: "Free website traffic and user analytics", url: "analytics.google.com", new: false },
+    ]
+  },
+  "Social Media & Online Presence": {
+    icon: "🌐", theme: "theme-blue", items: [
+      { name: "Linktree", desc: "Free link-in-bio page to share all your links", url: "linktr.ee", new: false },
+      { name: "Carrd", desc: "Free personal one-page website builder", url: "carrd.co", new: false },
+      { name: "Medium", desc: "Free blogging and writing platform", url: "medium.com", new: false },
+      { name: "Substack", desc: "Free newsletter platform with paid subscription option", url: "substack.com", new: false },
+      { name: "WordPress.com", desc: "Free blog and website", url: "wordpress.com", new: false },
+      { name: "Dev.to", desc: "Free tech blogging and developer community", url: "dev.to", new: false },
+    ]
+  },
+  "Job & Career": {
+    icon: "💼", theme: "theme-green", items: [
+      { name: "Handshake", desc: "Free student and early career job platform", url: "joinhandshake.com", new: false },
+      { name: "Indeed", desc: "Free job search — largest job board", url: "indeed.com", new: false },
+      { name: "Glassdoor", desc: "Free company research, salaries, and reviews", url: "glassdoor.com", new: false },
+      { name: "Contra", desc: "Free freelance platform — no commission fees", url: "contra.com", new: false },
+      { name: "Fiverr", desc: "Free seller profile to offer freelance services", url: "fiverr.com", new: false },
+      { name: "LinkedIn", desc: "Free professional networking and job search", url: "linkedin.com", new: false },
+      { name: "Wellfound (AngelList)", desc: "Free startup job board", url: "wellfound.com", new: false },
+      { name: "LeetCode", desc: "Free coding interview prep and practice", url: "leetcode.com", new: true },
+      { name: "HackerRank", desc: "Free coding challenges and hiring assessments", url: "hackerrank.com", new: true },
+      { name: "Kickresume", desc: "Free AI resume and cover letter builder", url: "kickresume.com", new: true },
+      { name: "Upwork", desc: "Free freelancer profile to find clients", url: "upwork.com", new: true },
+    ]
+  },
+  "Networking & Community": {
+    icon: "🤝", theme: "theme-purple", items: [
+      { name: "Indie Hackers", desc: "Free entrepreneur and maker community", url: "indiehackers.com", new: false },
+      { name: "Product Hunt", desc: "Free builder and product launch community", url: "producthunt.com", new: false },
+      { name: "Hacker News", desc: "Free tech and startup news community by YC", url: "news.ycombinator.com", new: false },
+      { name: "Dev.to", desc: "Free developer community and tech blog", url: "dev.to", new: false },
+      { name: "Lunchclub", desc: "Free AI-powered professional networking meetups", url: "lunchclub.com", new: false },
+    ]
+  },
+  "Physical Free Stuff": {
+    icon: "📦", theme: "theme-yellow", items: [
+      { name: "Facebook Marketplace Free", desc: "Free items section — people giving away local stuff", url: "facebook.com/marketplace", new: false },
+      { name: "Freecycle", desc: "Free stuff from your neighbors — keep things out of landfills", url: "freecycle.org", new: false },
+      { name: "Nextdoor", desc: "Free local items and community giveaways", url: "nextdoor.com", new: false },
+      { name: "PINCHme", desc: "Free full-size product samples by mail", url: "pinchme.com", new: false },
+      { name: "Influenster", desc: "Free full-size products to test and review", url: "influenster.com", new: false },
+      { name: "BzzAgent", desc: "Free products to review and share feedback", url: "bzzagent.com", new: false },
+      { name: "Ripple Street", desc: "Free products to test from brands", url: "ripplestreet.com", new: false },
+    ]
+  },
+  "Security & Privacy": {
+    icon: "🔐", theme: "theme-blue", items: [
+      { name: "Have I Been Pwned", desc: "Free check if your email was in a data breach", url: "haveibeenpwned.com", new: false },
+      { name: "Malwarebytes", desc: "Free malware scanner and protection", url: "malwarebytes.com", new: false },
+      { name: "ProtonVPN", desc: "Free VPN — no data limits, no logs", url: "protonvpn.com", new: false },
+      { name: "ProtonMail", desc: "Free end-to-end encrypted email", url: "proton.me", new: false },
+      { name: "Signal", desc: "Free encrypted messaging — the gold standard for privacy", url: "signal.org", new: false },
+      { name: "Windscribe", desc: "Free VPN — 10GB per month", url: "windscribe.com", new: false },
+      { name: "10 Minute Mail", desc: "Free disposable email address — no signup needed", url: "10minutemail.com", new: true },
+    ]
+  },
+  "Utilities": {
+    icon: "🔧", theme: "theme-green", items: [
+      { name: "7-Zip", desc: "Free file compression and extraction", url: "7-zip.org", new: false },
+      { name: "VLC", desc: "Free media player — plays anything", url: "videolan.org", new: false },
+      { name: "ShareX", desc: "Free advanced screenshot and screen recording tool", url: "getsharex.com", new: false },
+      { name: "Handbrake", desc: "Free open-source video converter", url: "handbrake.fr", new: false },
+      { name: "Smallpdf", desc: "Free PDF tools — compress, convert, merge, split", url: "smallpdf.com", new: false },
+      { name: "ILovePDF", desc: "Free PDF converter and editor online", url: "ilovepdf.com", new: false },
+      { name: "TinyWow", desc: "Free all-in-one online file tools — PDF, image, video", url: "tinywow.com", new: true },
+      { name: "Sleepyti.me", desc: "Free sleep cycle calculator for better mornings", url: "sleepyti.me", new: true },
+    ]
+  },
+  "Research Tools": {
+    icon: "🔬", theme: "theme-purple", items: [
+      { name: "Google Scholar", desc: "Free academic paper search", url: "scholar.google.com", new: false },
+      { name: "Semantic Scholar", desc: "Free AI-powered academic research search", url: "semanticscholar.org", new: false },
+      { name: "Elicit", desc: "Free AI research assistant — finds relevant papers", url: "elicit.org", new: false },
+      { name: "Zotero", desc: "Free citation manager and research organizer", url: "zotero.org", new: false },
+      { name: "Connected Papers", desc: "Free visual explorer for research papers", url: "connectedpapers.com", new: false },
+      { name: "RefSeek", desc: "Free academic search engine with less noise", url: "refseek.com", new: true },
+    ]
+  },
+  "Music Production": {
+    icon: "🎵", theme: "theme-pink", items: [
+      { name: "GarageBand", desc: "Free music maker for Apple — surprisingly powerful", url: "apple.com/garageband", new: false },
+      { name: "BandLab", desc: "Free online music production and collaboration", url: "bandlab.com", new: false },
+      { name: "Soundtrap", desc: "Free online music maker in the browser", url: "soundtrap.com", new: false },
+      { name: "Audacity", desc: "Free audio recording and multi-track editing", url: "audacityteam.org", new: false },
+      { name: "Mubert", desc: "Free AI music generator for content creators", url: "mubert.com", new: true },
+      { name: "Splice", desc: "Free sounds, samples, and loops library", url: "splice.com", new: true },
+      { name: "Suno", desc: "Free AI full song generation from text prompts", url: "suno.com", new: true },
+    ]
+  },
+  "Competitions": {
+    icon: "🏆", theme: "theme-yellow", items: [
+      { name: "Congressional App Challenge", desc: "Free app competition for high school students", url: "congressionalappchallenge.us", new: false },
+      { name: "MLH Hackathons", desc: "Free student hackathons worldwide", url: "mlh.io", new: false },
+      { name: "Devpost", desc: "Free hackathon discovery and submission platform", url: "devpost.com", new: false },
+      { name: "DECA", desc: "Free business and marketing competitions", url: "deca.org", new: false },
+      { name: "SkillsUSA", desc: "Free career and technical skill competitions", url: "skillsusa.org", new: false },
+    ]
+  },
+  "Travel": {
+    icon: "✈️", theme: "theme-blue", items: [
+      { name: "Google Flights", desc: "Free flight tracker with price calendars", url: "google.com/flights", new: false },
+      { name: "Hopper", desc: "Free flight price predictor — tells you when to buy", url: "hopper.com", new: false },
+      { name: "Rome2Rio", desc: "Free trip planner — shows all transport options", url: "rome2rio.com", new: false },
+      { name: "StudentUniverse", desc: "Student flight and travel discounts", url: "studentuniverse.com", new: false },
+      { name: "Amtrak Student Discount", desc: "15% off train travel", url: "amtrak.com", new: false },
+      { name: "Maps.me", desc: "Free offline maps — works without internet", url: "maps.me", new: false },
+    ]
+  },
+  "Communication": {
+    icon: "💬", theme: "theme-green", items: [
+      { name: "WhatsApp", desc: "Free messaging and calls worldwide", url: "whatsapp.com", new: false },
+      { name: "Telegram", desc: "Free messaging with extra features — channels, bots, groups", url: "telegram.org", new: false },
+      { name: "Discord", desc: "Free voice, video, and text communities", url: "discord.com", new: false },
+      { name: "Signal", desc: "Free encrypted messaging — most private option", url: "signal.org", new: false },
+    ]
+  },
+  "News & Media": {
+    icon: "📰", theme: "theme-purple", items: [
+      { name: "Ground News", desc: "Free news bias checker — see how outlets differ", url: "ground.news", new: false },
+      { name: "Flipboard", desc: "Free personalized news aggregator", url: "flipboard.com", new: false },
+      { name: "AP News", desc: "Completely free — no paywall ever", url: "apnews.com", new: false },
+      { name: "Pocket", desc: "Free save-to-read-later app for articles", url: "getpocket.com", new: false },
+      { name: "Feedly", desc: "Free news aggregator for RSS feeds", url: "feedly.com", new: false },
+    ]
+  },
+  "Math & Science": {
+    icon: "🧮", theme: "theme-blue", items: [
+      { name: "GeoGebra", desc: "Free graphing, geometry, and math tool", url: "geogebra.org", new: false },
+      { name: "Symbolab", desc: "Free step-by-step equation solver", url: "symbolab.com", new: false },
+      { name: "PhET Simulations", desc: "Free interactive science simulations from University of Colorado", url: "phet.colorado.edu", new: false },
+      { name: "Desmos", desc: "Free graphing calculator online", url: "desmos.com", new: false },
+      { name: "Wolfram Alpha", desc: "Free math, science, and data solver", url: "wolframalpha.com", new: false },
+      { name: "Photomath", desc: "Free math solver — point your camera at a problem", url: "photomath.com", new: false },
+      { name: "Mathway", desc: "Free step-by-step math solver across all topics", url: "mathway.com", new: true },
+    ]
+  },
+  "Writing": {
+    icon: "✍️", theme: "theme-pink", items: [
+      { name: "Hemingway Editor", desc: "Free writing clarity and readability tool", url: "hemingwayapp.com", new: false },
+      { name: "ProWritingAid", desc: "Free grammar and writing style checker", url: "prowritingaid.com", new: false },
+      { name: "Google Docs", desc: "Free word processor — collaborative and cloud-saved", url: "docs.google.com", new: false },
+      { name: "Wordcounter", desc: "Free writing analysis and word count tool", url: "wordcounter.net", new: false },
+      { name: "LanguageTool", desc: "Free open-source grammar checker in 20+ languages", url: "languagetool.org", new: true },
+      { name: "QuillBot", desc: "Free AI paraphrasing, summarizing, and rewriting", url: "quillbot.com", new: true },
+      { name: "EasyBib", desc: "Free citation and bibliography generator", url: "easybib.com", new: true },
+    ]
+  },
+  "Deals & Freebies": {
+    icon: "🏷️", theme: "theme-yellow", items: [
+      { name: "Reddit r/freebies", desc: "Community finds and shares free stuff daily", url: "reddit.com/r/freebies", new: false },
+      { name: "Reddit r/deals", desc: "Best deals curated by the community", url: "reddit.com/r/deals", new: false },
+      { name: "Slickdeals", desc: "Community-curated deals and coupons", url: "slickdeals.net", new: false },
+      { name: "DealNews", desc: "Aggregates free and discounted items daily", url: "dealnews.com", new: false },
+      { name: "Save The Student", desc: "Student discount database — UK and US", url: "savethestudent.org", new: false },
+      { name: "UNiDAYS", desc: "Student deal aggregator — verify with your email", url: "unidays.com", new: false },
+      { name: "Student Beans", desc: "Student deals on brands and software", url: "studentbeans.com", new: false },
+      { name: "RetailMeNot", desc: "Free coupon codes for online and in-store shopping", url: "retailmenot.com", new: true },
+    ]
+  }
+};
+
+// Category colors for icons
+const bgColors = {
+  "theme-purple": "#1e1a3d",
+  "theme-pink": "#3d1a2a",
+  "theme-green": "#1a3d2a",
+  "theme-yellow": "#3d3010",
+  "theme-blue": "#1a2a3d"
+};
+
+const textColors = {
+  "theme-purple": "#a090ff",
+  "theme-pink": "#ff90b8",
+  "theme-green": "#70ffb8",
+  "theme-yellow": "#ffd970",
+  "theme-blue": "#70c0ff"
+};
+
+let activeFilter = "All";
+let searchQuery = "";
+
+function buildUI() {
+  const wrap = document.getElementById("sectionsWrap");
+  const chipWrap = document.getElementById("filterChips");
+  const categories = Object.keys(DATA);
+
+  // Stats
+  let total = 0;
+  categories.forEach(c => total += DATA[c].items.length);
+  document.getElementById("totalCount").textContent = total + "+";
+  document.getElementById("catCount").textContent = categories.length;
+
+  // All chip
+  const allChip = document.createElement("button");
+  allChip.className = "chip active";
+  allChip.textContent = "All";
+  allChip.onclick = () => setFilter("All");
+  chipWrap.appendChild(allChip);
+
+  // Category chips
+  categories.forEach(cat => {
+    const chip = document.createElement("button");
+    chip.className = "chip";
+    chip.textContent = DATA[cat].icon + " " + cat;
+    chip.setAttribute("data-cat", cat);
+    chip.onclick = () => setFilter(cat);
+    chipWrap.appendChild(chip);
+  });
+
+  // Sections
+  categories.forEach(cat => {
+    const { icon, theme, items } = DATA[cat];
+    const sec = document.createElement("div");
+    sec.className = "section " + theme;
+    sec.setAttribute("data-category", cat);
+
+    const hdr = document.createElement("div");
+    hdr.className = "section-header";
+
+    const iconEl = document.createElement("div");
+    iconEl.className = "section-icon";
+    iconEl.style.background = bgColors[theme] || "#1a1a2a";
+    iconEl.textContent = icon;
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "section-title";
+    titleEl.textContent = cat;
+
+    const countEl = document.createElement("div");
+    countEl.className = "section-count";
+    countEl.textContent = items.length + " tools";
+
+    hdr.appendChild(iconEl);
+    hdr.appendChild(titleEl);
+    hdr.appendChild(countEl);
+    sec.appendChild(hdr);
+
+    const grid = document.createElement("div");
+    grid.className = "cards";
+
+    items.forEach(item => {
+      const card = document.createElement("a");
+      card.className = "card";
+      card.href = "https://" + item.url;
+      card.target = "_blank";
+      card.rel = "noopener noreferrer";
+      card.setAttribute("data-name", item.name.toLowerCase());
+      card.setAttribute("data-desc", item.desc.toLowerCase());
+      card.setAttribute("data-url", item.url.toLowerCase());
+      card.style.setProperty("--card-accent", textColors[theme] || "var(--accent)");
+
+      const favicon = document.createElement("div");
+      favicon.className = "card-favicon";
+      favicon.style.background = bgColors[theme] || "#1a1a2a";
+      const img = document.createElement("img");
+      img.src = "https://www.google.com/s2/favicons?domain=" + item.url + "&sz=32";
+      img.onerror = () => { favicon.textContent = icon; };
+      favicon.appendChild(img);
+
+      const info = document.createElement("div");
+      info.className = "card-info";
+
+      const name = document.createElement("div");
+      name.className = "card-name";
+      name.textContent = item.name;
+
+      const desc = document.createElement("div");
+      desc.className = "card-desc";
+      desc.textContent = item.desc;
+
+      const url = document.createElement("div");
+      url.className = "card-url";
+      url.textContent = item.url;
+
+      info.appendChild(name);
+      info.appendChild(desc);
+      info.appendChild(url);
+      card.appendChild(favicon);
+      card.appendChild(info);
+
+      if (item.new) {
+        const badge = document.createElement("span");
+        badge.className = "badge-new";
+        badge.textContent = "New";
+        card.appendChild(badge);
+      }
+
+      grid.appendChild(card);
+    });
+
+    sec.appendChild(grid);
+    wrap.appendChild(sec);
+  });
+
+  // Intersection observer for animations
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); });
+  }, { threshold: 0.05 });
+
+  document.querySelectorAll(".section").forEach(s => obs.observe(s));
+}
+
+function setFilter(cat) {
+  activeFilter = cat;
+  document.querySelectorAll(".chip").forEach(c => {
+    c.classList.toggle("active",
+      c.textContent === "All" ? cat === "All" : c.getAttribute("data-cat") === cat
+    );
+  });
+  filterRender();
+}
+
+document.getElementById("searchInput").addEventListener("input", e => {
+  searchQuery = e.target.value.toLowerCase().trim();
+  filterRender();
+});
+
+function filterRender() {
+  const sections = document.querySelectorAll(".section");
+  let totalVisible = 0;
+
+  sections.forEach(sec => {
+    const cat = sec.getAttribute("data-category");
+    const catMatch = activeFilter === "All" || activeFilter === cat;
+
+    if (!catMatch) { sec.style.display = "none"; return; }
+
+    const cards = sec.querySelectorAll(".card");
+    let visCount = 0;
+
+    cards.forEach(card => {
+      const matches = !searchQuery ||
+        card.getAttribute("data-name").includes(searchQuery) ||
+        card.getAttribute("data-desc").includes(searchQuery) ||
+        card.getAttribute("data-url").includes(searchQuery);
+      card.style.display = matches ? "" : "none";
+      if (matches) visCount++;
+    });
+
+    sec.style.display = visCount === 0 ? "none" : "";
+    totalVisible += visCount;
+  });
+
+  const bar = document.getElementById("resultsBar");
+  const noRes = document.getElementById("noResults");
+
+  if (totalVisible === 0) {
+    noRes.style.display = "block";
+    bar.textContent = "";
+  } else {
+    noRes.style.display = "none";
+    if (searchQuery || activeFilter !== "All") {
+      bar.textContent = totalVisible + " result" + (totalVisible !== 1 ? "s" : "");
+    } else {
+      bar.textContent = "";
+    }
+  }
+}
+
+// Back to top
+window.addEventListener("scroll", () => {
+  document.getElementById("backTop").classList.toggle("show", window.scrollY > 400);
+});
+
+buildUI();
+</script>
+</body>
+</html>
